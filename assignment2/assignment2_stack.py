@@ -2,7 +2,7 @@ from aws_cdk import (
     Stack,
     aws_dynamodb as dynamodb,
     aws_lambda as lambda_,
-    aws_apigateway,
+    aws_apigateway as api,
     Duration,    #this is for configuring the lambda timeout
     RemovalPolicy,
     CfnOutput
@@ -15,7 +15,7 @@ class Assignment2Stack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # The code that defines your stack goes here
+        # stack definition:
 
         #1. DYNAMODB TABLE
         table = dynamodb.Table(
@@ -28,11 +28,11 @@ class Assignment2Stack(Stack):
         #2. LAMBDA FUNCTIONS:
         get_all_items_lambda = lambda_.Function(
             self, "GetAllItemsFunction",    #specify the name, otherwise i get error "There is already a Construct with name"
-            handler='lambda_code.handler',
+            handler='get_all_items.handler',
             timeout=Duration.minutes(1),    #1 minute timeout
             runtime=lambda_.Runtime.PYTHON_3_12,
             function_name='get_all_items',
-            code=lambda_.Code.from_asset("./assets/get_all_items"),
+            code=lambda_.Code.from_asset("./lambdas"),
             #need the table name to use it in the function:
             environment={
                 'TABLE':table.table_name
@@ -41,44 +41,56 @@ class Assignment2Stack(Stack):
 
         add_item_lambda = lambda_.Function(
             self, "AddItemFunction",
-            handler='lambda_code.handler',
+            handler='add_item.handler',
             timeout=Duration.minutes(1),    #1 minute timeout
             runtime=lambda_.Runtime.PYTHON_3_12,
             function_name='add_item',
-            code=lambda_.Code.from_asset("./assets/add_item"),
+            code=lambda_.Code.from_asset("./lambdas"),
             #need the table name to use it in the function:
             environment={
                 'TABLE':table.table_name
             }
         )
 
-        get_item_ID_lambda = lambda_.Function(
-            self, "GetItemIDFunction",
-            handler='lambda_code.handler',
-            timeout=Duration.minutes(1),    #1 minute timeout
-            runtime=lambda_.Runtime.PYTHON_3_12,
-            function_name='get_item_by_ID',
-            code=lambda_.Code.from_asset("./assets/get_item_by_ID"),
-            #need the table name to use it in the function:
-            environment={
-                'TABLE':table.table_name
-            }
-        )
+        # get_item_ID_lambda = lambda_.Function(
+        #     self, "GetItemIDFunction",
+        #     handler='lambda_code.handler',
+        #     timeout=Duration.minutes(1),    #1 minute timeout
+        #     runtime=lambda_.Runtime.PYTHON_3_12,
+        #     function_name='get_item_by_ID',
+        #     code=lambda_.Code.from_asset("./assets/get_item_by_ID"),
+        #     #need the table name to use it in the function:
+        #     environment={
+        #         'TABLE':table.table_name
+        #     }
+        # )
 
         #Granting permissions to perform the different actions of the functions:
         #TODO: fine-tune the permissions. These are too broad:
         table.grant_read_data(get_all_items_lambda)
-        table.grant_read_data(get_item_ID_lambda)
+        # table.grant_read_data(get_item_ID_lambda)
         table.grant_write_data(add_item_lambda)
 
-        #3. API GATEWAY
-        api = aws_apigateway.RestApi(
-            self, "CatalogAPI",
-            
+        # 3. API GATEWAY
+        apigw = api.RestApi(
+            self, "CatalogAPI"
         )
-        #How to create outputs?
+        # Integrate Lambda functions with API Gateway
+        catalog_items = apigw.root.add_resource("catalog_items")
+
+        # GET methods:
+        get_all_integration = api.LambdaIntegration(get_all_items_lambda)
+        catalog_items.add_method("GET", get_all_integration)
+
+        #PUT
+        add_item_integration = api.LambdaIntegration(add_item_lambda)
+        catalog_items.add_method("POST", add_item_integration)
+
+        #DELETE:
+
+        #We'll need the URL for calling the API endpoints:
         CfnOutput(
-            self, 'OutputTableARN', 
-            value = table.table_arn,
-            key = 'OutputTableARN'
+            self, 'ApiEndpoint',
+            value=apigw.url,
+            key='ApiEndpoint'
         )
