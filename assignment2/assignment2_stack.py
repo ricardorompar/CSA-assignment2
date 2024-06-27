@@ -17,7 +17,9 @@ class Assignment2Stack(Stack):
 
         # stack definition:
 
-        #1. DYNAMODB TABLE
+        '''
+        1. DYNAMODB TABLE
+        '''
         table = dynamodb.Table(
             self, "Table",
             table_name= "items_catalog",
@@ -25,7 +27,9 @@ class Assignment2Stack(Stack):
             removal_policy=RemovalPolicy.DESTROY #force/ensure table destruction with CDK
         )
         
-        #2. LAMBDA FUNCTIONS:
+        '''
+        2. LAMBDA FUNCTIONS:
+        '''
         get_all_items_lambda = lambda_.Function(
             self, "GetAllItemsFunction",    #specify the name, otherwise i get error "There is already a Construct with name"
             handler='get_all_items.handler',
@@ -52,39 +56,43 @@ class Assignment2Stack(Stack):
             }
         )
 
-        # get_item_ID_lambda = lambda_.Function(
-        #     self, "GetItemIDFunction",
-        #     handler='lambda_code.handler',
-        #     timeout=Duration.minutes(1),    #1 minute timeout
-        #     runtime=lambda_.Runtime.PYTHON_3_12,
-        #     function_name='get_item_by_ID',
-        #     code=lambda_.Code.from_asset("./assets/get_item_by_ID"),
-        #     #need the table name to use it in the function:
-        #     environment={
-        #         'TABLE':table.table_name
-        #     }
-        # )
+        get_item_by_id_lambda = lambda_.Function(
+            self, "GetItemByIdFunction",
+            handler='get_item_by_id.handler',
+            timeout=Duration.minutes(1),    #1 minute timeout
+            runtime=lambda_.Runtime.PYTHON_3_12,
+            function_name='get_item_by_id',
+            code=lambda_.Code.from_asset("./lambdas"),
+            #need the table name to use it in the function:
+            environment={
+                'TABLE':table.table_name
+            }
+        )
 
         #Granting permissions to perform the different actions of the functions:
         #TODO: fine-tune the permissions. These are too broad:
         table.grant_read_data(get_all_items_lambda)
-        # table.grant_read_data(get_item_ID_lambda)
+        table.grant_read_data(get_item_by_id_lambda)
         table.grant_write_data(add_item_lambda)
 
-        # 3. API GATEWAY
+        '''
+        3. API GATEWAY
+        '''
         apigw = api.RestApi(
             self, "CatalogAPI"
         )
-        # Integrate Lambda functions with API Gateway
+        
         catalog_items = apigw.root.add_resource("catalog_items")
 
-        # GET methods:
         get_all_integration = api.LambdaIntegration(get_all_items_lambda)
         catalog_items.add_method("GET", get_all_integration)
 
-        #PUT
         add_item_integration = api.LambdaIntegration(add_item_lambda)
-        catalog_items.add_method("POST", add_item_integration)
+        catalog_items.add_method("PUT", add_item_integration)
+
+        get_by_id_resource = catalog_items.add_resource("{id}") #first add another resource 
+        get_by_id_integration = api.LambdaIntegration(get_item_by_id_lambda)
+        get_by_id_resource.add_method("GET", get_by_id_integration) #then attach the lambda to it
 
         #DELETE:
 

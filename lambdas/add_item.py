@@ -21,8 +21,8 @@ def handler(event, context):
     table_name = os.environ['TABLE']
     client = boto3.client('dynamodb')
     #the body of the event contains the information that we want to put in the catalog:
-    # new_item = json.loads(event['body'])
-    new_item = event #TODO check if this works with the API gateway
+    new_item = json.loads(event['body'])
+    # new_item = event #TODO check if this works with the API gateway
     try:
         client.put_item(
             TableName=table_name,
@@ -36,6 +36,6 @@ def handler(event, context):
     
     except:
         return {
-            'statusCode': 201,  #status code for resource not created
-            'body': json.dumps({'message': 'Item added', 'item': new_item})
+            'statusCode': 405,  #method not allowed
+            'body': json.dumps({'message': 'Not allowed. Maybe check item format?'})
         }
