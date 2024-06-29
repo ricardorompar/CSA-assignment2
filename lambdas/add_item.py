@@ -1,17 +1,23 @@
+'''
+DynamoDB Client put_item documentation: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/put_item.html
+'''
+
 import json
 import boto3
 import os
 
 def handler(event, context):
     '''
-    Acording to https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/put_item.html
     Item should be in format:
     {
-        "id":{
-            "S":"sylCSA2025"
-        },
         "name":{
-            "S":"Syllabus for Cloud Solutions Architecture 2025"
+            "S":"Syllabus 2025"
+        },
+        "course":{
+            "S":"Cloud Solutions Architecture"
+        },
+        "year":{
+            "N":"2025"
         },
         "type":{
             "S":"PDF"
@@ -22,7 +28,12 @@ def handler(event, context):
     client = boto3.client('dynamodb')
     #the body of the event contains the information that we want to put in the catalog:
     new_item = json.loads(event['body'])
-    # new_item = event #TODO check if this works with the API gateway
+    new_id = { #the id will be the combination between course and name. It will be unique because these two fields are the identifiers of each item
+        "S":f"{new_item['name']['S']}#{new_item['course']['S']}"  #i define the id in the required format
+    }
+    new_item['id'] = new_id 
+    # E.g: Syllabus 2025#Cloud Solutions Architecture
+    print(new_item)
     try:
         client.put_item(
             TableName=table_name,

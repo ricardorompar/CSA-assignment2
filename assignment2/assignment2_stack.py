@@ -1,3 +1,9 @@
+'''
+- Adding local secondary indexes: https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_dynamodb/LocalSecondaryIndexProps.html
+- Examples of API Gateway REST API: https://github.dev/awslabs/aws-lambda-powertools-python/blob/2236c89dd451495d6f634ccc0881957acf02903f/tests/e2e/event_handler/infrastructure.py#L72#L72
+
+'''
+
 from aws_cdk import (
     Stack,
     aws_dynamodb as dynamodb,
@@ -23,8 +29,16 @@ class Assignment2Stack(Stack):
         table = dynamodb.Table(
             self, "Table",
             table_name= "items_catalog",
-            partition_key=dynamodb.Attribute(name="id", type=dynamodb.AttributeType.STRING),
+            #Since the requirement is using name and course as id I use both parameters as partition and sort keys:
+            partition_key=dynamodb.Attribute(name="name", type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(name="course", type=dynamodb.AttributeType.STRING),
             removal_policy=RemovalPolicy.DESTROY #force/ensure table destruction with CDK
+        )
+
+        #adding year as a secondary local index to make faster queries:
+        table.add_local_secondary_index(
+            index_name="year",
+            sort_key=dynamodb.Attribute(name="course", type=dynamodb.AttributeType.STRING)
         )
         
         '''
@@ -81,7 +95,7 @@ class Assignment2Stack(Stack):
         apigw = api.RestApi(
             self, "CatalogAPI"
         )
-        
+
         catalog_items = apigw.root.add_resource("catalog_items")
 
         get_all_integration = api.LambdaIntegration(get_all_items_lambda)
@@ -90,7 +104,9 @@ class Assignment2Stack(Stack):
         add_item_integration = api.LambdaIntegration(add_item_lambda)
         catalog_items.add_method("PUT", add_item_integration)
 
-        get_by_id_resource = catalog_items.add_resource("{id}") #first add another resource 
+        #TODO:CHANGE FUNCTION DEFINITION GET_ITEMS_BY_ID AND CHANGE RESOURCE (QUERY PARAMS OR BODY??? DEFINE!)
+
+        get_by_id_resource = catalog_items.add_resource("id") #first add another resource 
         get_by_id_integration = api.LambdaIntegration(get_item_by_id_lambda)
         get_by_id_resource.add_method("GET", get_by_id_integration) #then attach the lambda to it
 
