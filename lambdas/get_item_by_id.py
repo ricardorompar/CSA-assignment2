@@ -5,41 +5,23 @@ import os
 def handler(event, context):
     table_name = os.environ['TABLE']
     client = boto3.client('dynamodb')
-    # item_id = event['pathParameters']['id'] #this is used to retrieve the id from the URL path
-    # item_id = json.loads(event['body'])
-    '''
-    Assuming item_id in the format. The id is the composite between partition/sort keys -> name/course
-    {
-        'name':{
-            'S':'Syllabus for the CSA class'
-        },
-        'course':{
-            'S':'Cloud Solutions Architecture'
-        }
-    }
-    '''
-    # getting the query parameters:
+
+    # getting the query parameters i.e. ID  :
     try:
-        if (event['queryStringParameters']) and (event['queryStringParameters']['name']) and (
-                event['queryStringParameters']['name'] is not None):
-            item_name = event['queryStringParameters']['name']
+        query_params = event['queryStringParameters']
+        if (query_params) and (query_params['id']) and (query_params['id'] is not None):
+            item_id = query_params['id']
     except KeyError:
         return {
             'statusCode': 500,
-            'body': json.dumps({'message': 'Please specify the name of the item'})
-        }
-    
-    try:
-        if (event['queryStringParameters']) and (event['queryStringParameters']['course']) and (
-                event['queryStringParameters']['course'] is not None):
-            item_course = event['queryStringParameters']['course']
-    except KeyError:
-        return {
-            'statusCode': 500,
-            'body': json.dumps({'message': 'Please specify the course of the item'})
+            'body': json.dumps({'message': 'Please specify the id of the item'})
         }
 
     try:
+        #now i separate the name and course:
+        item_name = item_id.split('#')[0]
+        item_course = item_id.split('#')[1]
+        
         response = client.get_item(
             TableName=table_name,
             #Uses a similar syntax to put_item:

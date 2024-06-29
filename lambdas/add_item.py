@@ -42,7 +42,7 @@ def handler(event, context):
 
         return {
             'statusCode': 201,  #status code for resource creation
-            'body': json.dumps({'message': 'Item added', 'item': new_item})
+            'body': json.dumps({'message': 'Item added', 'Item ID': new_item['id']})
         }
     
     except:
