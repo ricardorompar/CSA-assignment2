@@ -104,9 +104,8 @@ class Assignment2Stack(Stack):
         add_item_integration = api.LambdaIntegration(add_item_lambda)
         catalog_items.add_method("PUT", add_item_integration)
 
-        #TODO:CHANGE FUNCTION DEFINITION GET_ITEMS_BY_ID AND CHANGE RESOURCE (QUERY PARAMS OR BODY??? DEFINE!)
-
-        get_by_id_resource = catalog_items.add_resource("id") #first add another resource 
+        #For the get_by_id function I want to use path parameters so it's in the format items_catalog/<id>
+        get_by_id_resource = catalog_items.add_resource('{id}') #first add another resource 
         get_by_id_integration = api.LambdaIntegration(get_item_by_id_lambda)
         get_by_id_resource.add_method("GET", get_by_id_integration) #then attach the lambda to it
 
