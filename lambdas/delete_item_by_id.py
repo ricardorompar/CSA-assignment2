@@ -3,40 +3,59 @@ import boto3
 import os
 
 def handler(event, context):
+    '''
+    This is almost the same function as get by id
+    '''
     table_name = os.environ['TABLE']
-    client = boto3.client('dynamodb')
-    # item_id = event['pathParameters']['id'] #this is used to retrieve the id from the URL path. Same as get by id
-    item_id = json.loads(event['body'])
-    '''
-    Assuming item_id in the format. The id is the composite between partition/sort keys -> name/course
-    {
-        'name':{
-            'S':'Syllabus for the CSA class'
-        },
-        'course':{
-            'S':'Cloud Solutions Architecture'
+    client = boto3.client('dynamodb')  
+    # getting the query parameters i.e. ID  :
+    try:
+        query_params = event['queryStringParameters']
+        if (query_params) and (query_params['id']) and (query_params['id'] is not None):
+            item_id = query_params['id']
+    except:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'message': 'Please specify the id of the item'})
         }
-    }
-    '''
+
+    try:
+        #now i separate the name and course:
+        item_name = item_id.split('@')[0]
+        item_course = item_id.split('@')[1]
+    except IndexError:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'message': 'Please specify the id of the item in the format name@course'})
+        }
+
     try:
         client.delete_item(
             TableName=table_name,
             #Uses a similar syntax to put_item:
-            Key=item_id
-            # Key={
-            #     'id': {
-            #         'S': item_id,
-            #     }
-            # }
+            Key={
+                'name':{
+                    'S':item_name
+                },
+                'course':{
+                    'S':item_course
+                }
+            }
         )
 
-        return {
-            'statusCode':204,
-            'body':json.dumps({'message':'Item deleted'})
-        }
-            
-    except Exception:
+        try: #tryception
+            return {
+                'statusCode':200,
+                'body':json.dumps({"message":f"Item {item_id} deleted successfully"})
+            }
+        except KeyError:    #this would mean the response object doesn't have the 'Item' field, aka not found:
+            return {
+                'statusCode':404,
+                'body':json.dumps({"message":"Item not found"})
+            }
+        
+    except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({'message': 'Internal server error', 'cause':str(Exception)})
+            'body': json.dumps({'message': 'Internal server error', 'cause':str(e)})
         }

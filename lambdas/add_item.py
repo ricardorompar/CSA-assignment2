@@ -10,18 +10,10 @@ def handler(event, context):
     '''
     Item should be in format:
     {
-        "name":{
-            "S":"Syllabus 2025"
-        },
-        "course":{
-            "S":"Cloud Solutions Architecture"
-        },
-        "year":{
-            "N":"2025"
-        },
-        "type":{
-            "S":"PDF"
-        }
+        "name":{"S":"Syllabus 2025"},
+        "course":{"S":"Cloud Solutions Architecture"},
+        "year":{"N":"2025"},
+        "type":{"S":"PDF"}
     }
     '''
     table_name = os.environ['TABLE']
@@ -29,10 +21,10 @@ def handler(event, context):
     #the body of the event contains the information that we want to put in the catalog:
     new_item = json.loads(event['body'])
     new_id = { #the id will be the combination between course and name. It will be unique because these two fields are the identifiers of each item
-        "S":f"{new_item['name']['S']}#{new_item['course']['S']}"  #i define the id in the required format
+        "S":f"{new_item['name']['S']}@{new_item['course']['S']}"  #i define the id in the required format
     }
     new_item['id'] = new_id 
-    # E.g: Syllabus 2025#Cloud Solutions Architecture
+    # E.g: Syllabus 2025@Cloud Solutions Architecture
     print(new_item)
     try:
         client.put_item(
@@ -42,7 +34,7 @@ def handler(event, context):
 
         return {
             'statusCode': 201,  #status code for resource creation
-            'body': json.dumps({'message': 'Item added', 'Item ID': new_item['id']})
+            'body': json.dumps({'message': 'Item added', 'Item ID': new_item['id']['S']})
         }
     
     except:

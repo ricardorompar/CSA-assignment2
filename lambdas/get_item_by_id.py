@@ -11,7 +11,7 @@ def handler(event, context):
         query_params = event['queryStringParameters']
         if (query_params) and (query_params['id']) and (query_params['id'] is not None):
             item_id = query_params['id']
-    except KeyError:
+    except:
         return {
             'statusCode': 500,
             'body': json.dumps({'message': 'Please specify the id of the item'})
@@ -19,9 +19,15 @@ def handler(event, context):
 
     try:
         #now i separate the name and course:
-        item_name = item_id.split('#')[0]
-        item_course = item_id.split('#')[1]
-        
+        item_name = item_id.split('@')[0]
+        item_course = item_id.split('@')[1]
+    except IndexError:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'message': 'Please specify the id of the item in the format name@course'})
+        }
+
+    try:
         response = client.get_item(
             TableName=table_name,
             #Uses a similar syntax to put_item:
@@ -35,20 +41,21 @@ def handler(event, context):
             }
         )
 
-        if response['Item']:   #if it was found. In get_item, the response JSON includes an 'Item' object, as opposed to the 'Items' from scan 
+        try: #tryception
             return {
                 'statusCode':200,
                 'body':json.dumps(response['Item'])
             }
-        else:
+        except KeyError:    #this would mean the response object doesn't have the 'Item' field, aka not found:
             return {
                 'statusCode':404,
                 'body':json.dumps({"message":"Item not found"})
             }
+        
     except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({'message': 'Internal server error', 'cause':str(e.message)})
+            'body': json.dumps({'message': 'Internal server error', 'cause':str(e)})
         }
 
     

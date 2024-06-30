@@ -35,10 +35,11 @@ class Assignment2Stack(Stack):
             removal_policy=RemovalPolicy.DESTROY #force/ensure table destruction with CDK
         )
 
-        #adding year as a secondary local index to make faster queries:
-        table.add_local_secondary_index(
-            index_name="year",
-            sort_key=dynamodb.Attribute(name="course", type=dynamodb.AttributeType.STRING)
+        #adding a course GSI to make faster queries:
+        table.add_global_secondary_index(
+            index_name="course_index",
+            partition_key=dynamodb.Attribute(name="course", type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(name="name", type=dynamodb.AttributeType.STRING)
         )
         
         '''
@@ -83,11 +84,39 @@ class Assignment2Stack(Stack):
             }
         )
 
+        delete_item_by_id_lambda = lambda_.Function(
+            self, "DeleteItemByIdFunction",
+            handler='delete_item_by_id.handler',
+            timeout=Duration.minutes(1),    #1 minute timeout
+            runtime=lambda_.Runtime.PYTHON_3_12,
+            function_name='delete_item_by_id',
+            code=lambda_.Code.from_asset("./lambdas"),
+            #need the table name to use it in the function:
+            environment={
+                'TABLE':table.table_name
+            }
+        )
+
+        get_items_by_course_lambda = lambda_.Function(
+            self, "GetItemsByCourseFunction",
+            handler='get_items_by_course.handler',
+            timeout=Duration.minutes(1),    #1 minute timeout
+            runtime=lambda_.Runtime.PYTHON_3_12,
+            function_name='get_items_by_course',
+            code=lambda_.Code.from_asset("./lambdas"),
+            #need the table name to use it in the function:
+            environment={
+                'TABLE':table.table_name
+            }
+        )
+
         #Granting permissions to perform the different actions of the functions:
         #TODO: fine-tune the permissions. These are too broad:
         table.grant_read_data(get_all_items_lambda)
         table.grant_read_data(get_item_by_id_lambda)
+        table.grant_read_data(get_items_by_course_lambda)
         table.grant_write_data(add_item_lambda)
+        table.grant_write_data(delete_item_by_id_lambda)
 
         '''
         3. API GATEWAY
@@ -95,22 +124,30 @@ class Assignment2Stack(Stack):
         apigw = api.RestApi(
             self, "CatalogAPI"
         )
-
+        #endpoint <base>/catalog_items
         catalog_items = apigw.root.add_resource("catalog_items")
-
+        #GET all items:
         get_all_integration = api.LambdaIntegration(get_all_items_lambda)
         catalog_items.add_method("GET", get_all_integration)
-
+        #PUT add new item:
         add_item_integration = api.LambdaIntegration(add_item_lambda)
         catalog_items.add_method("PUT", add_item_integration)
 
-        #TODO:CHANGE FUNCTION DEFINITION GET_ITEMS_BY_ID AND CHANGE RESOURCE (QUERY PARAMS OR BODY??? DEFINE!)
-
-        get_by_id_resource = catalog_items.add_resource("id") #first add another resource 
+        #endpoint <base>/catalog_items/by_id
+        by_id_resource = catalog_items.add_resource("by_id") #first add another resource 
+        #GET by id
         get_by_id_integration = api.LambdaIntegration(get_item_by_id_lambda)
-        get_by_id_resource.add_method("GET", get_by_id_integration) #then attach the lambda to it
+        by_id_resource.add_method("GET", get_by_id_integration) #then attach the lambda to it
+        #DELETE by id
+        delete_by_id_integration = api.LambdaIntegration(delete_item_by_id_lambda)
+        by_id_resource.add_method("DELETE", delete_by_id_integration)
 
-        #DELETE:
+        #endpoint <base>/catalog_items/by_course
+        by_course_resource = catalog_items.add_resource("by_course") #another resource 
+        #GET by course
+        get_by_course_integration = api.LambdaIntegration(get_items_by_course_lambda)
+        by_course_resource.add_method("GET", get_by_course_integration) #then attach the lambda to it
+
 
         #We'll need the URL for calling the API endpoints:
         CfnOutput(
