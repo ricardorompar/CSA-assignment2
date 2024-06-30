@@ -11,8 +11,7 @@ from aws_cdk import (
     aws_apigateway as api,
     Duration,    #this is for configuring the lambda timeout
     RemovalPolicy,
-    CfnOutput
-
+    CfnOutput,
 )
 from constructs import Construct
 
@@ -131,7 +130,8 @@ class Assignment2Stack(Stack):
 
         #Granting permissions to perform the different actions of the functions:
         #TODO: fine-tune the permissions. These are too broad:
-        table.grant_read_data(get_all_items_lambda)
+        table.grant(get_all_items_lambda, "dynamodb:Scan")
+        # table.grant_read_data(get_all_items_lambda)
         table.grant_read_data(get_item_by_id_lambda)
         table.grant_read_data(get_items_by_course_lambda)
         table.grant_read_data(get_items_by_year_lambda)
