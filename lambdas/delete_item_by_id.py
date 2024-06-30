@@ -1,3 +1,7 @@
+'''
+boto3 delete_item documentation: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/delete_item.html
+'''
+
 import json
 import boto3
 import os
@@ -30,9 +34,9 @@ def handler(event, context):
         }
 
     try:
-        client.delete_item(
+        #i first check if exists:
+        response = client.get_item(
             TableName=table_name,
-            #Uses a similar syntax to put_item:
             Key={
                 'name':{
                     'S':item_name
@@ -43,15 +47,29 @@ def handler(event, context):
             }
         )
 
-        try: #tryception
+        if 'Item' in response:
+            #In that case i can delete:
+            client.delete_item(
+                TableName=table_name,
+                Key={
+                    'name':{
+                        'S':item_name
+                    },
+                    'course':{
+                        'S':item_course
+                    }
+                }
+            )
+
             return {
                 'statusCode':200,
                 'body':json.dumps({"message":f"Item {item_id} deleted successfully"})
             }
-        except KeyError:    #this would mean the response object doesn't have the 'Item' field, aka not found:
+        
+        else:    #this would mean the response object doesn't have the 'Item' field, aka not found:
             return {
                 'statusCode':404,
-                'body':json.dumps({"message":"Item not found"})
+                'body':json.dumps({"message":"Item not found. Cannot delete"})
             }
         
     except Exception as e:

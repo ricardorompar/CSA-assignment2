@@ -24,8 +24,8 @@ def handler(event, context):
         "S":f"{new_item['name']['S']}@{new_item['course']['S']}"  #i define the id in the required format
     }
     new_item['id'] = new_id 
-    # E.g: Syllabus 2025@Cloud Solutions Architecture
-    print(new_item)
+    # E.g: Syllabus@Cloud Solutions Architecture
+    
     try:
         client.put_item(
             TableName=table_name,
@@ -34,7 +34,7 @@ def handler(event, context):
 
         return {
             'statusCode': 201,  #status code for resource creation
-            'body': json.dumps({'message': 'Item added', 'Item ID': new_item['id']['S']})
+            'body': json.dumps({'message': 'Item added successfully', 'Item ID': new_item['id']['S']})
         }
     
     except:

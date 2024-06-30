@@ -1,5 +1,5 @@
 '''
-- Adding local secondary indexes: https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_dynamodb/LocalSecondaryIndexProps.html
+- Adding secondary indexes: https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_dynamodb/GlobalSecondaryIndexProps.html
 - Examples of API Gateway REST API: https://github.dev/awslabs/aws-lambda-powertools-python/blob/2236c89dd451495d6f634ccc0881957acf02903f/tests/e2e/event_handler/infrastructure.py#L72#L72
 
 '''
@@ -39,6 +39,12 @@ class Assignment2Stack(Stack):
         table.add_global_secondary_index(
             index_name="course_index",
             partition_key=dynamodb.Attribute(name="course", type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(name="name", type=dynamodb.AttributeType.STRING)
+        )
+
+        table.add_global_secondary_index(
+            index_name="year_index",
+            partition_key=dynamodb.Attribute(name="year", type=dynamodb.AttributeType.NUMBER),
             sort_key=dynamodb.Attribute(name="name", type=dynamodb.AttributeType.STRING)
         )
         
@@ -110,13 +116,28 @@ class Assignment2Stack(Stack):
             }
         )
 
+        get_items_by_year_lambda = lambda_.Function(
+            self, "GetItemsByYearFunction",
+            handler='get_items_by_year.handler',
+            timeout=Duration.minutes(1),    #1 minute timeout
+            runtime=lambda_.Runtime.PYTHON_3_12,
+            function_name='get_items_by_year',
+            code=lambda_.Code.from_asset("./lambdas"),
+            #need the table name to use it in the function:
+            environment={
+                'TABLE':table.table_name
+            }
+        )
+
         #Granting permissions to perform the different actions of the functions:
         #TODO: fine-tune the permissions. These are too broad:
         table.grant_read_data(get_all_items_lambda)
         table.grant_read_data(get_item_by_id_lambda)
         table.grant_read_data(get_items_by_course_lambda)
+        table.grant_read_data(get_items_by_year_lambda)
         table.grant_write_data(add_item_lambda)
         table.grant_write_data(delete_item_by_id_lambda)
+        table.grant_read_data(delete_item_by_id_lambda) #in order to check if exists
 
         '''
         3. API GATEWAY
@@ -147,6 +168,12 @@ class Assignment2Stack(Stack):
         #GET by course
         get_by_course_integration = api.LambdaIntegration(get_items_by_course_lambda)
         by_course_resource.add_method("GET", get_by_course_integration) #then attach the lambda to it
+
+        #endpoint <base>/catalog_items/by_year
+        by_year_resource = catalog_items.add_resource("by_year") #another resource 
+        #GET by year
+        get_by_year_integration = api.LambdaIntegration(get_items_by_year_lambda)
+        by_year_resource.add_method("GET", get_by_year_integration) #then attach the lambda to it
 
 
         #We'll need the URL for calling the API endpoints:

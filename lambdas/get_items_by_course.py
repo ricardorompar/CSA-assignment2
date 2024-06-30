@@ -6,7 +6,6 @@ Querying with indexes: https://stackoverflow.com/questions/35758924/how-do-we-qu
 import json
 import boto3
 import os
-# from boto3.dynamodb.conditions import Key
 
 def handler(event, context):
     table_name = os.environ['TABLE']
@@ -32,14 +31,13 @@ def handler(event, context):
                     'S': item_course,
                 },
             },
-            # KeyConditionExpression=Key('course').eq(item_course)
             KeyConditionExpression = 'course = :value'
         )
 
-        if response['Items']: #tryception
+        if response['Items']:
             return {
                 'statusCode':200,
-                'body':json.dumps({"message":f"Found {len(response['Items'])} items for course {item_course}", "Items":response['Items']})
+                'body':json.dumps({"count":f"{len(response['Items'])}", "Items":response['Items']})
             }
         else:
             return {
