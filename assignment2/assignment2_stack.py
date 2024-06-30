@@ -1,7 +1,7 @@
 '''
 - Adding secondary indexes: https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_dynamodb/GlobalSecondaryIndexProps.html
 - Examples of API Gateway REST API: https://github.dev/awslabs/aws-lambda-powertools-python/blob/2236c89dd451495d6f634ccc0881957acf02903f/tests/e2e/event_handler/infrastructure.py#L72#L72
-
+- Actions for DynamoDB IAM policies: https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazondynamodb.html
 '''
 
 from aws_cdk import (
@@ -129,15 +129,12 @@ class Assignment2Stack(Stack):
         )
 
         #Granting permissions to perform the different actions of the functions:
-        #TODO: fine-tune the permissions. These are too broad:
         table.grant(get_all_items_lambda, "dynamodb:Scan")
-        # table.grant_read_data(get_all_items_lambda)
-        table.grant_read_data(get_item_by_id_lambda)
-        table.grant_read_data(get_items_by_course_lambda)
-        table.grant_read_data(get_items_by_year_lambda)
-        table.grant_write_data(add_item_lambda)
-        table.grant_write_data(delete_item_by_id_lambda)
-        table.grant_read_data(delete_item_by_id_lambda) #in order to check if exists
+        table.grant(get_item_by_id_lambda, "dynamodb:GetItem")
+        table.grant(get_items_by_course_lambda, "dynamodb:Query")
+        table.grant(get_items_by_year_lambda, "dynamodb:Query")
+        table.grant(add_item_lambda, "dynamodb:PutItem")
+        table.grant(delete_item_by_id_lambda, "dynamodb:GetItem", "dynamodb:DeleteItem") #this function first checks that the item exists and then deletes
 
         '''
         3. API GATEWAY
