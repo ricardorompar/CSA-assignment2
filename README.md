@@ -15,6 +15,32 @@ All the following endpoints are added to this base URL with the corresponding HT
 GET `/catalog_items ` 
 
 </td>
+</tr>
+
+<tr>
+<td>
+
+Retrieves all the items of the catalog
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+Request: `GET /catalog_items/`
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+Request Body:`None`
+
+</td>
+</tr>
+
 <tr>
 <td>
 
