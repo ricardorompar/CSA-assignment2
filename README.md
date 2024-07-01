@@ -5,8 +5,11 @@ Diagram of the proposed architecture for the application:
 ![AWS services diagram](./img/Assignment2.drawio.png "Services used for this application.")
 
 ## 2. API documentation
-After deploying the application with AWS CDK (cdk deploy) the console will output the base URL path for interacting with the API. For example, https://exclp8y9a0.execute-api.your-region-2.amazonaws.com/prod/
+After deploying the application with AWS CDK (cdk deploy) the console will output the base URL path for interacting with the API. For example, something like: https://exclp8y9a0.execute-api.your-region-2.amazonaws.com/prod/
+
 All the following endpoints are added to this base URL with the corresponding HTTP methods.
+
+### Get all items
 
 <!-- GET ALL ITEMS -->
 <table>
@@ -91,6 +94,7 @@ Request: `GET /catalog_items/`
 
 ---
 
+### Add a new item
 <!-- ADD NEW ITEM -->
 <table>
 <!-- --------------------------- -->
@@ -150,6 +154,7 @@ Request: `PUT /catalog_items/`
 
 ---
 
+### Get an item by ID
 <!-- GET ITEM BY ID-->
 <table>
 <!-- --------------------------- -->
@@ -232,6 +237,7 @@ Example request: `GET /catalog_items/by_id?id=Nonexistent@Python`
 
 ---
 
+### Delete an item
 <!-- DELETE ITEM -->
 <table>
 <!-- --------------------------- -->
@@ -280,6 +286,7 @@ Example equest: `DELETE /catalog_items/by_id?id=Midterm@CSA`
 
 ---
 
+### Get items by year
 <!-- GET ITEM BY YEAR -->
 <table>
 <!-- --------------------------- -->
@@ -361,7 +368,8 @@ Example equest: `GET /catalog_items/by_year?year=2025`
 
 ---
 
-<!-- GET ITEM BY YEAR -->
+### Get items by course
+<!-- GET ITEM BY COURSE -->
 <table>
 <!-- --------------------------- -->
 <tr>
