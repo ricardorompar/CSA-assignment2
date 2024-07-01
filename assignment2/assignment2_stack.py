@@ -136,6 +136,7 @@ class Assignment2Stack(Stack):
         table.grant(add_item_lambda, "dynamodb:PutItem")
         table.grant(delete_item_by_id_lambda, "dynamodb:GetItem", "dynamodb:DeleteItem") #this function first checks that the item exists and then deletes
 
+
         '''
         3. API GATEWAY
         '''

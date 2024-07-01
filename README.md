@@ -1,58 +1,66 @@
 
-# Welcome to your CDK Python project!
+# Serverless knowledge catalog management system
+## 1. Diagram
+Diagram of the proposed architecture for the application:
+![AWS services diagram](./img/Assignment2.drawio.png "Services used for this application.")
 
-This is a blank project for CDK development with Python.
+## 2. API documentation
+After deploying the application with AWS CDK (cdk deploy) the console will output the base URL path for interacting with the API. For example, https://exclp8y9a0.execute-api.your-region-2.amazonaws.com/prod/
+All the following endpoints are added to this base URL with the corresponding HTTP methods.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+<table>
+<tr>
+    <td> GET </td> <td> /catalog_items </td>
+</tr>
+<tr>
+    <td>
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+        (Status: 200)
+        
+        ```json
+        {
+            "count": "2",
+            "items": [
+                {
+                    "year": {
+                        "N": "2025"
+                    },
+                    "id": {
+                        "S": "Midterm exercise@GCA"
+                    },
+                    "name": {
+                        "S": "Midterm exercise"
+                    },
+                    "course": {
+                        "S": "GCA"
+                    },
+                    "type": {
+                        "S": "PDF"
+                    }
+                },
+                {
+                    "year": {
+                        "N": "2024"
+                    },
+                    "id": {
+                        "S": "Slide deck session 1@Databases"
+                    },
+                    "name": {
+                        "S": "Slide deck session 1"
+                    },
+                    "course": {
+                        "S": "Databases"
+                    },
+                    "type": {
+                        "S": "Powerpoint"
+                    }
+                }
+            ]
+        }
 
-To manually create a virtualenv on MacOS and Linux:
+        ```
 
-```
-$ python3 -m venv .venv
-```
+    </td>
+</tr>
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
-
-```
-$ source .venv/bin/activate
-```
-
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .venv\Scripts\activate.bat
-```
-
-Once the virtualenv is activated, you can install the required dependencies.
-
-```
-$ pip install -r requirements.txt
-```
-
-At this point you can now synthesize the CloudFormation template for this code.
-
-```
-$ cdk synth
-```
-
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
-
-## Useful commands
-
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
-
-Enjoy!
+</table>
