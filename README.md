@@ -89,6 +89,7 @@ Request: `GET /catalog_items/`
 <!-- --------------------------- -->
 </table>
 
+---
 
 <!-- ADD NEW ITEM -->
 <table>
@@ -146,6 +147,8 @@ Request: `PUT /catalog_items/`
 </tr>
 <!-- --------------------------- -->
 </table>
+
+---
 
 <!-- GET ITEM BY ID-->
 <table>
@@ -219,6 +222,213 @@ Example request: `GET /catalog_items/by_id?id=Nonexistent@Python`
 ```json
 {
     "message": "Item not found"
+}
+```
+
+</td>
+</tr>
+<!-- --------------------------- -->
+</table>
+
+---
+
+<!-- DELETE ITEM -->
+<table>
+<!-- --------------------------- -->
+<tr>
+<td>
+
+**DELETE `/catalog_items/by_id?id={id}`**
+
+</td>
+</tr>
+<!-- --------------------------- -->
+<tr>
+<td>
+
+**Deletes an element based on the id**
+
+The id is passed as a query parameter in the format *name@course*. If the id is not correctly specified, the response is a description message. If the item does not exist, the response is a message that says that the item cannot be deleted (not found, 404).
+
+
+</td>
+</tr>
+<!-- --------------------------- -->
+<tr>
+<td>
+
+Example equest: `DELETE /catalog_items/by_id?id=Midterm@CSA`
+
+
+**Request Body:**
+`None`
+
+
+**Example response:**
+(Status: 200)
+
+```json
+{
+    "message": "Item Midterm@CSA deleted successfully"
+}
+```
+
+</td>
+</tr>
+<!-- --------------------------- -->
+</table>
+
+---
+
+<!-- GET ITEM BY YEAR -->
+<table>
+<!-- --------------------------- -->
+<tr>
+<td>
+
+**DELETE `/catalog_items/by_year?year={year}`**
+
+</td>
+</tr>
+<!-- --------------------------- -->
+<tr>
+<td>
+
+**Retrieves all the elements for a specified year**
+
+The year is passed as a query parameter. If the year is not correctly specified, the response is a description message.
+
+
+</td>
+</tr>
+<!-- --------------------------- -->
+<tr>
+<td>
+
+Example equest: `GET /catalog_items/by_year?year=2025`
+
+
+**Request Body:**
+`None`
+
+
+**Example response:**
+(Status: 200)
+
+```json
+{
+    "count": "2",
+    "Items": [
+        {
+            "year": {
+                "N": "2025"
+            },
+            "id": {
+                "S": "Midterm exercise@GCA"
+            },
+            "course": {
+                "S": "GCA"
+            },
+            "name": {
+                "S": "Midterm exercise"
+            },
+            "type": {
+                "S": "PDF"
+            }
+        },
+        {
+            "year": {
+                "N": "2025"
+            },
+            "id": {
+                "S": "Other file@OS"
+            },
+            "course": {
+                "S": "OS"
+            },
+            "name": {
+                "S": "Other file"
+            }
+        }
+    ]
+}
+```
+
+</td>
+</tr>
+<!-- --------------------------- -->
+</table>
+
+---
+
+<!-- GET ITEM BY YEAR -->
+<table>
+<!-- --------------------------- -->
+<tr>
+<td>
+
+**DELETE `/catalog_items/by_course?course={course}`**
+
+</td>
+</tr>
+<!-- --------------------------- -->
+<tr>
+<td>
+
+**Retrieves all the elements for a specified course**
+
+The course is passed as a query parameter. If the course is not correctly specified, the response is a description message.
+
+
+</td>
+</tr>
+<!-- --------------------------- -->
+<tr>
+<td>
+
+Example equest: `GET /catalog_items/by_course?course=CSA`
+
+
+**Request Body:**
+`None`
+
+
+**Example response:**
+(Status: 200)
+
+```json
+{
+    "count": "2",
+    "Items": [
+        {
+            "year": {
+                "N": "2024"
+            },
+            "id": {
+                "S": "Gradebook@CSA"
+            },
+            "course": {
+                "S": "CSA"
+            },
+            "name": {
+                "S": "Gradebook"
+            },
+            "type": {
+                "S": "Excel file"
+            }
+        },
+        {
+            "id": {
+                "S": "Other@CSA"
+            },
+            "course": {
+                "S": "CSA"
+            },
+            "name": {
+                "S": "Other"
+            }
+        }
+    ]
 }
 ```
 
