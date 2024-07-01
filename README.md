@@ -10,9 +10,13 @@ All the following endpoints are added to this base URL with the corresponding HT
 
 <table>
 <tr>
-GET `/catalog_items `
-</tr>
+<td>
+
+GET `/catalog_items ` 
+
+</td>
 <tr>
+<td>
 
 (Status: 200)
 
@@ -59,6 +63,7 @@ GET `/catalog_items `
 
 ```
 
+</td>
 </tr>
 
 </table>
