@@ -9,14 +9,15 @@ After deploying the application with AWS CDK (cdk deploy) the console will outpu
 All the following endpoints are added to this base URL with the corresponding HTTP methods.
 
 <table>
+<!-- --------------------------- -->
 <tr>
 <td>
 
-GET `/catalog_items ` 
+**GET `/catalog_items`**
 
 </td>
 </tr>
-
+<!-- --------------------------- -->
 <tr>
 <td>
 
@@ -24,26 +25,18 @@ Retrieves all the items of the catalog
 
 </td>
 </tr>
-
+<!-- --------------------------- -->
 <tr>
 <td>
 
 Request: `GET /catalog_items/`
 
-</td>
-</tr>
 
-<tr>
-<td>
+**Request Body:**
+`None`
 
-Request Body:`None`
 
-</td>
-</tr>
-
-<tr>
-<td>
-
+**Example response**
 (Status: 200)
 
 ```json
@@ -91,5 +84,5 @@ Request Body:`None`
 
 </td>
 </tr>
-
+<!-- --------------------------- -->
 </table>
