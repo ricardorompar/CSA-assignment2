@@ -10,57 +10,55 @@ All the following endpoints are added to this base URL with the corresponding HT
 
 <table>
 <tr>
-    <td> GET </td> <td> /catalog_items </td>
+GET `/catalog_items `
 </tr>
 <tr>
-    <td>
 
-        (Status: 200)
-        
-        ```json
+(Status: 200)
+
+```json
+{
+    "count": "2",
+    "items": [
         {
-            "count": "2",
-            "items": [
-                {
-                    "year": {
-                        "N": "2025"
-                    },
-                    "id": {
-                        "S": "Midterm exercise@GCA"
-                    },
-                    "name": {
-                        "S": "Midterm exercise"
-                    },
-                    "course": {
-                        "S": "GCA"
-                    },
-                    "type": {
-                        "S": "PDF"
-                    }
-                },
-                {
-                    "year": {
-                        "N": "2024"
-                    },
-                    "id": {
-                        "S": "Slide deck session 1@Databases"
-                    },
-                    "name": {
-                        "S": "Slide deck session 1"
-                    },
-                    "course": {
-                        "S": "Databases"
-                    },
-                    "type": {
-                        "S": "Powerpoint"
-                    }
-                }
-            ]
+            "year": {
+                "N": "2025"
+            },
+            "id": {
+                "S": "Midterm exercise@GCA"
+            },
+            "name": {
+                "S": "Midterm exercise"
+            },
+            "course": {
+                "S": "GCA"
+            },
+            "type": {
+                "S": "PDF"
+            }
+        },
+        {
+            "year": {
+                "N": "2024"
+            },
+            "id": {
+                "S": "Slide deck session 1@Databases"
+            },
+            "name": {
+                "S": "Slide deck session 1"
+            },
+            "course": {
+                "S": "Databases"
+            },
+            "type": {
+                "S": "Powerpoint"
+            }
         }
+    ]
+}
 
-        ```
+```
 
-    </td>
 </tr>
 
 </table>
