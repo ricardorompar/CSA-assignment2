@@ -2,7 +2,7 @@
 # Serverless knowledge catalog management system
 ## 1. Diagram
 Diagram of the proposed architecture for the application:
-![AWS services diagram](./img/Assignment2.drawio.png "Services used for this application.")
+![AWS services diagram](./img/Assignment2.drawio2.png "Services used for this application.")
 
 ## 2. API documentation
 After deploying the application with AWS CDK (cdk deploy) the console will output the base URL path for interacting with the API. For example, something like: https://exclp8y9a0.execute-api.your-region-2.amazonaws.com/prod/
